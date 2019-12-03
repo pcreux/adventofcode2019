@@ -101,6 +101,19 @@ modules = %w(
 140572
 )
 
+# Star 1
 puts modules.map { |mass|
   (mass.to_i / 3) - 2
+}.sum
+
+# Star 2
+def compute_fuel(mass)
+  fuel = (mass.to_i / 3) - 2
+  fuel += compute_fuel(fuel) if fuel > 6
+
+  fuel
+end
+
+puts modules.map { |mass|
+  compute_fuel(mass)
 }.sum
