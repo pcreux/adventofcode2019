@@ -14,6 +14,10 @@ class Wire
     self
   end
 
+  def steps(point)
+    points.index(point)
+  end
+
   def points
     @points ||= [Point.new(0, 0)]
   end
@@ -58,4 +62,11 @@ def closest_to_central_port(wire1, wire2)
   crosses.map { |cross| cross.distance(Point.new(0, 0)) }.min
 end
 
-p closest_to_central_port(wire1, wire2)
+closest_to_central_port(wire1, wire2)
+
+def fewest_combined_steps(wire1, wire2)
+  crosses = (wire1.points & wire2.points) - [Point.new(0, 0)]
+  crosses.map { |cross| wire1.steps(cross) + wire2.steps(cross) }.min
+end
+
+p fewest_combined_steps(wire1, wire2)
