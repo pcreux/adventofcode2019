@@ -19,18 +19,40 @@ class IntcodeComputer
       state[get_param(3)] = fetch_value_for_param(1) * fetch_value_for_param(2)
       jump(4)
     when 3
-      opcode, output_pos = state[position..position + 1]
-      state[output_pos] = input
+      state[get_param(1)] = input
       jump(2)
     when 4
-      opcode, output_pos = state[position..position + 1]
-      puts state[output_pos]
+      puts state[get_param(1)]
       jump(2)
+    when 5
+      if fetch_value_for_param(1) != 0
+        goto(fetch_value_for_param(2))
+      else
+        jump(3)
+      end
+    when 6
+      if fetch_value_for_param(1) == 0
+        goto(fetch_value_for_param(2))
+      else
+        jump(3)
+      end
+    when 7
+      v = fetch_value_for_param(1) < fetch_value_for_param(2) ? 1 : 0
+      state[get_param(3)] = v
+      jump(4)
+    when 8
+      v = fetch_value_for_param(1) == fetch_value_for_param(2) ? 1 : 0
+      state[get_param(3)] = v
+      jump(4)
     when 99
       return state[0]
     else
       raise "invalid opcode #{opcode.inspect}"
     end
+  end
+
+  def goto(n)
+    IntcodeComputer.new(state: state, position: n).run
   end
 
   def jump(n)
@@ -88,4 +110,8 @@ class IntcodeComputer
   end
 end
 
-IntcodeComputer.new.run
+# Part 1
+# IntcodeComputer.new.run
+
+# Part 2
+IntcodeComputer.new(input: 5).run
