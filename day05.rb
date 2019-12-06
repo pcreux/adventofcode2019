@@ -5,50 +5,82 @@ class IntcodeComputer
   attr_reader :state, :input, :position
 
   def initialize(state: INPUT, input: 1, position: 0)
-    @state = state
+    @state = state.dup
     @input = input
     @position = position
   end
 
   def run
-    full_opcode = state[position]
-    padded_opcode = full_opcode.to_s.rjust(5, "0")
-    mode_1 = padded_opcode[2].to_i
-    mode_2 = padded_opcode[1].to_i
-    mode_3 = padded_opcode[0].to_i
-    opcode = padded_opcode[3..4].to_i
-
-    output = case opcode
+    case opcode
     when 1
-      opcode, input_1_pos, input_2_pos, output_pos = state[position..position + 3]
-      input_1 = mode_1 == 0 ? state[input_1_pos] : input_1_pos
-      input_2 = mode_2 == 0 ? state[input_2_pos] : input_2_pos
-      output = input_1 + input_2
-      # output is always in position mode
-      state[output_pos] = output
-      IntcodeComputer.new(state: state, position: position + 4).run
+      state[get_param(3)] = fetch_value_for_param(1) + fetch_value_for_param(2)
+      jump(4)
     when 2
-      opcode, input_1_pos, input_2_pos, output_pos = state[position..position + 3]
-      input_1 = mode_1 == 0 ? state[input_1_pos] : input_1_pos
-      input_2 = mode_2 == 0 ? state[input_2_pos] : input_2_pos
-      output = input_1 * input_2
-      # output is always in position mode
-      state[output_pos] = output
-      IntcodeComputer.new(state: state, position: position + 4).run
+      state[get_param(3)] = fetch_value_for_param(1) * fetch_value_for_param(2)
+      jump(4)
     when 3
-      input = 1
       opcode, output_pos = state[position..position + 1]
       state[output_pos] = input
-      IntcodeComputer.new(state: state, position: position + 2).run
+      jump(2)
     when 4
       opcode, output_pos = state[position..position + 1]
       puts state[output_pos]
-      IntcodeComputer.new(state: state, position: position + 2).run
+      jump(2)
     when 99
       return state[0]
     else
       raise "invalid opcode #{opcode.inspect}"
     end
+  end
+
+  def jump(n)
+    IntcodeComputer.new(state: state, position: position + n).run
+  end
+
+  def get_param(n)
+    state[position + n]
+  end
+
+  def fetch_value_for_param(n)
+    param = get_param(n)
+    case mode(n)
+    when :immediate
+      param
+    when :position
+      state[param]
+    else
+      raise "invalid mode #{mode(n).inspect}"
+    end
+  end
+
+  def mode(n)
+    position = { 1 => 2, 2 => 1, 3 => 0 }.fetch(n).to_i
+
+    { 0 => :position, 1 => :immediate }.fetch(padded_opcode[position].to_i)
+  end
+
+  def mode_1
+    padded_opcode[2].to_i
+  end
+
+  def mode_2
+    padded_opcode[1].to_i
+  end
+
+  def mode_3
+    padded_opcode[0].to_i
+  end
+
+  def opcode
+    padded_opcode[3..4].to_i
+  end
+
+  def padded_opcode
+    full_opcode.to_s.rjust(5, "0")
+  end
+
+  def full_opcode
+    state[position]
   end
 
   def display(state)
