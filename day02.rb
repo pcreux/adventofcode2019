@@ -3,7 +3,7 @@ INPUT = [1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,6,1,19,1,5,19,23,1,13,23,27,1,6,27,31
 def run(state, position: 0)
   #display(state)
 
-  opcode, input_1_pos, input_2_pos, output_pos = state[position..position + 4]
+  opcode, input_1_pos, input_2_pos, output_pos = state[position..position + 3]
   input_1 = state[input_1_pos]
   input_2 = state[input_2_pos]
 
